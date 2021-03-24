@@ -3,7 +3,7 @@
 
 Screen::Screen(const std::string& title, int width, int height)
     : title(title), width(width), height(height)
-    , window(nullptr), renderer(nullptr)
+    , window(nullptr), glContext(NULL)
 {
 }
 
@@ -33,7 +33,7 @@ bool Screen::Init()
         return false;
     }
 
-    SDL_GLContext glContext = SDL_GL_CreateContext(window);
+    glContext = SDL_GL_CreateContext(window);
     if (glContext == nullptr)
     {
         Fatal("SDL_GL context could not be created!");
@@ -70,10 +70,10 @@ bool Screen::Init()
 
 void Screen::cleanup()
 {
-    if (renderer != nullptr)
+    if (glContext != NULL)
     {
-        SDL_DestroyRenderer(renderer);
-        renderer = nullptr;
+        SDL_GL_DeleteContext(glContext);
+        glContext = NULL;
     }
 
     if (window != nullptr)

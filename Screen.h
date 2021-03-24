@@ -8,7 +8,7 @@ class Screen
 {
 private:
     SDL_Window* window;
-    SDL_Renderer* renderer;
+    SDL_GLContext glContext;
     int width;
     int height;
     std::string title;
@@ -20,11 +20,6 @@ public:
     ~Screen();
 
     bool Init();
-
-    inline SDL_Renderer* GetRenderer()
-    {
-        return renderer;
-    }
 
     int GetWidth() const
     {
