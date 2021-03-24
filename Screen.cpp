@@ -49,7 +49,6 @@ bool Screen::Init()
     // Successfully loaded OpenGL
     std::cout << "OpenGL version loaded: " << GLVersion.major << "."
         << GLVersion.minor << std::endl;
-
     std::printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
 
     int adaptiveVSyncResullt = SDL_GL_SetSwapInterval(-1);
