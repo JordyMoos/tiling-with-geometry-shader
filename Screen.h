@@ -1,38 +1,42 @@
 #pragma once
 
+#include <glad/glad.h>
 #include <SDL/SDL.h>
 #include <string>
 
 class Screen
 {
-public:
-    Screen(std::string title, int width, int height);
-
-    ~Screen();
-
-    bool init();
-
-    void cleanup();
-
-    inline SDL_Renderer* getRenderer()
-    {
-        return renderer;
-    }
-
-    int getWidth()
-    {
-        return width;
-    }
-
-    int getHeight()
-    {
-        return height;
-    }
-
 private:
     SDL_Window* window;
     SDL_Renderer* renderer;
     int width;
     int height;
     std::string title;
+
+public:
+
+    Screen(const std::string& title, int width, int height);
+
+    ~Screen();
+
+    bool Init();
+
+    inline SDL_Renderer* GetRenderer()
+    {
+        return renderer;
+    }
+
+    int GetWidth() const
+    {
+        return width;
+    }
+
+    int GetHeight() const
+    {
+        return height;
+    }
+
+private:
+
+    void cleanup();
 };

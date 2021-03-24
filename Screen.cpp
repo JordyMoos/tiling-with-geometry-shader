@@ -1,37 +1,69 @@
 #include "Screen.h"
-#include <string>
+#include "Error.h"
 
-Screen::Screen(std::string title, int width, int height)
-    : title(title), width(width), height(height), window(nullptr), renderer(nullptr)
+Screen::Screen(const std::string& title, int width, int height)
+    : title(title), width(width), height(height)
+    , window(nullptr), renderer(nullptr)
 {
 }
 
-bool Screen::init()
+bool Screen::Init()
 {
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+    {
+        printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        return false;
+    }
+
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
     window = SDL_CreateWindow(
         title.c_str(),
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
         width,
         height,
-        0);
+        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (window == nullptr)
     {
         cleanup();
         return false;
     }
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (renderer == nullptr)
+    SDL_GLContext glContext = SDL_GL_CreateContext(window);
+    if (glContext == nullptr)
     {
-        cleanup();
-        return false;
+        Fatal("SDL_GL context could not be created!");
     }
 
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 255);
-    SDL_RenderClear(renderer);
-    SDL_RenderPresent(renderer);
+    int version = gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
+    if (version == 0)
+    {
+        printf("Failed to initialize OpenGL context\n");
+        return -1;
+    }
+
+    // Successfully loaded OpenGL
+    std::cout << "OpenGL version loaded: " << GLVersion.major << "."
+        << GLVersion.minor << std::endl;
+
+    std::printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+
+    int adaptiveVSyncResullt = SDL_GL_SetSwapInterval(-1);
+    if (adaptiveVSyncResullt == -1)
+    {
+        // Set to VSync if adaptive vsync is not working
+        std::cout << "could not use adaptive vsync" << std::endl;
+        SDL_GL_SetSwapInterval(1);
+    }
+
+    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     return true;
 }
@@ -49,6 +81,8 @@ void Screen::cleanup()
         SDL_DestroyWindow(window);
         window = nullptr;
     }
+
+    SDL_Quit();
 }
 
 Screen::~Screen()
