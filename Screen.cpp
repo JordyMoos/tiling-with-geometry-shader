@@ -43,7 +43,7 @@ bool Screen::Init()
     if (version == 0)
     {
         printf("Failed to initialize OpenGL context\n");
-        return -1;
+        return false;
     }
 
     // Successfully loaded OpenGL
